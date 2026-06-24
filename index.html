@@ -19,51 +19,55 @@ overflow:hidden;
 position:absolute;
 top:20px;
 left:20px;
-background:rgba(0,0,0,.75);
-padding:12px 20px;
-border-radius:14px;
-color:#fff;
-min-width:420px;
-}
-
-.title{
-text-align:center;
-font-size:18px;
-font-weight:bold;
-margin-bottom:8px;
-color:#ffd700;
-}
-
-.row{
 display:flex;
-justify-content:space-between;
 align-items:center;
-font-size:28px;
-font-weight:bold;
 }
 
-.team{
-width:140px;
-}
-
-.score{
-font-size:42px;
-padding:0 10px;
-}
-
-.time{
+.left{
+background:#111;
+color:#fff;
+padding:8px 12px;
 text-align:center;
-font-size:34px;
 font-weight:bold;
-color:#ffff00;
-margin-top:8px;
 }
 
 .half{
-text-align:center;
 font-size:18px;
+}
+
+.time{
+font-size:38px;
+}
+
+.middle{
+display:flex;
+flex-direction:column;
+}
+
+.teamrow{
+display:flex;
+height:42px;
+}
+
+.team{
+width:220px;
+display:flex;
+align-items:center;
+padding-left:12px;
+font-size:28px;
 font-weight:bold;
-margin-top:4px;
+color:white;
+}
+
+.scorebox{
+width:60px;
+background:white;
+color:black;
+font-size:32px;
+font-weight:bold;
+display:flex;
+align-items:center;
+justify-content:center;
 }
 </style>
 </head>
@@ -71,18 +75,26 @@ margin-top:4px;
 <body>
 
 <div class="board">
-<div class="title" id="title">FRIENDLY MATCH</div>
 
-<div class="row">
-<div class="team" id="team1">HOME</div>
-
-<div class="score">
-<span id="score1">0</span>
--
-<span id="score2">0</span>
+<div class="left">
+<div class="half" id="half">1ST</div>
+<div class="time" id="clock">00:00</div>
 </div>
 
-<div class="team" id="team2" style="text-align:right">AWAY</div>
+<div class="middle">
+
+<div class="teamrow">
+<div class="team" id="team1">TEAM 1</div>
+<div class="scorebox" id="score1">0</div>
+</div>
+
+<div class="teamrow">
+<div class="team" id="team2">TEAM 2</div>
+<div class="scorebox" id="score2">0</div>
+</div>
+
+</div>
+
 </div>
 
 <div class="time" id="clock">00:00</div>
@@ -133,7 +145,11 @@ String(data.second).padStart(2,'0');
 
 }
 
-loadData();
+loadData(document.getElementById("team1").style.background =
+`linear-gradient(90deg,${data.team1_color1},${data.team1_color2})`;
+
+document.getElementById("team2").style.background =
+`linear-gradient(90deg,${data.team2_color1},${data.team2_color2})`;);
 
 setInterval(loadData,1000);
 
