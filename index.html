@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Professional Football Scoreboard</title>
+<title>Football Scoreboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
@@ -20,87 +20,87 @@ position:absolute;
 top:20px;
 left:20px;
 display:flex;
-align-items:center;
+align-items:flex-start;
 gap:8px;
 }
 
-.left-panel{
+.leftpanel{
 display:flex;
 flex-direction:column;
 gap:6px;
 }
 
-.half-box{
-width:95px;
-height:38px;
+.halfbox,
+.timebox{
 background:#111;
-border:2px solid #fff;
-border-radius:8px;
+color:#fff;
+width:90px;
+height:42px;
+border-radius:4px;
 display:flex;
 align-items:center;
 justify-content:center;
 font-weight:bold;
 }
 
-.time-box{
-width:95px;
-height:52px;
-background:#111;
-border:2px solid #fff;
-border-radius:8px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-weight:bold;
-font-size:22px;
+.halfbox{
+font-size:18px;
 }
 
-.main{
-width:450px;
+.timebox{
+font-size:24px;
+}
+
+.rightpanel{
+display:flex;
+flex-direction:column;
 }
 
 .title{
 background:#000;
-padding:5px;
-text-align:center;
-font-size:14px;
-font-weight:bold;
-border-radius:8px 8px 0 0;
-}
-
-.team-row{
-height:52px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 10px;
-font-weight:bold;
-font-size:24px;
-}
-
-.team-name{
-flex:1;
-}
-
-.score-box{
-width:58px;
-height:40px;
+color:#ffd700;
+height:20px;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:28px;
+font-size:12px;
 font-weight:bold;
-border-radius:8px;
+width:330px;
 }
 
-.vs{
-background:#000;
-color:#fff;
-border:2px solid #fff;
-border-radius:8px;
-padding:8px 12px;
+.row{
+display:flex;
+height:42px;
+}
+
+.team{
+width:260px;
+display:flex;
+align-items:center;
+padding-left:10px;
+font-size:22px;
 font-weight:bold;
-font-size:18px;
+color:#fff;
+}
+
+.score{
+width:70px;
+background:#fff;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+font-weight:bold;
+color:#000;
+border-left:2px solid #ddd;
+}
+
+#team1{
+background:linear-gradient(90deg,#ff0000,#00ff00);
+}
+
+#team2{
+background:linear-gradient(90deg,#ff0000,#ffff66);
 }
 </style>
 </head>
@@ -109,52 +109,27 @@ font-size:18px;
 
 <div class="board">
 
-<div class="left-panel">
-
-<div class="half-box">
-<span id="half">1ST HALF</span>
+<div class="leftpanel">
+<div class="halfbox" id="half">1ST</div>
+<div class="timebox" id="clock">00:00</div>
 </div>
 
-<div class="time-box">
-<span id="clock">00:00</span>
-</div>
-
-</div>
-
-<div class="main">
+<div class="rightpanel">
 
 <div class="title" id="title">
-FOOTBALL TOURNAMENT
+FOOTBALL MATCH
 </div>
 
-<div class="team-row" id="team1Row">
-
-<div class="team-name" id="team1">
-HOME
+<div class="row">
+<div class="team" id="team1">TEAM A</div>
+<div class="score" id="score1">0</div>
 </div>
 
-<div class="score-box" id="score1Box">
-<span id="score1">0</span>
+<div class="row">
+<div class="team" id="team2">TEAM B</div>
+<div class="score" id="score2">0</div>
 </div>
 
-</div>
-
-<div class="team-row" id="team2Row">
-
-<div class="team-name" id="team2">
-AWAY
-</div>
-
-<div class="score-box" id="score2Box">
-<span id="score2">0</span>
-</div>
-
-</div>
-
-</div>
-
-<div class="vs">
-VS
 </div>
 
 </div>
@@ -163,7 +138,7 @@ VS
 
 async function loadData(){
 
-const {data}=await supabaseClient
+const { data } = await supabaseClient
 .from('scoreboard')
 .select('*')
 .eq('id',1)
@@ -171,58 +146,40 @@ const {data}=await supabaseClient
 
 if(!data) return;
 
-title.innerText=data.match_title || "MATCH";
+document.getElementById("title").innerText =
+data.match_title || "MATCH";
 
-team1.innerText=data.team1 || "HOME";
-team2.innerText=data.team2 || "AWAY";
+document.getElementById("team1").innerText =
+data.team1 || "TEAM A";
 
-score1.innerText=data.score1 ?? 0;
-score2.innerText=data.score2 ?? 0;
+document.getElementById("team2").innerText =
+data.team2 || "TEAM B";
 
-half.innerText=data.half || "1ST HALF";
+document.getElementById("score1").innerText =
+data.score1 ?? 0;
 
-clock.innerText=
-String(data.minute).padStart(2,'0')
-+ ":"
+document.getElementById("score2").innerText =
+data.score2 ?? 0;
+
+document.getElementById("half").innerText =
+data.half || "1ST";
+
+document.getElementById("clock").innerText =
+String(data.minute || 0).padStart(2,'0')
 +
-String(data.second).padStart(2,'0');
+":"
++
+String(data.second || 0).padStart(2,'0');
 
-team1Row.style.background=
+document.getElementById("team1").style.background =
 `linear-gradient(90deg,
-${data.team1_color1},
-${data.team1_color2})`;
+${data.team1_color1 || "#ff0000"},
+${data.team1_color2 || "#00ff00"})`;
 
-team2Row.style.background=
+document.getElementById("team2").style.background =
 `linear-gradient(90deg,
-${data.team2_color1},
-${data.team2_color2})`;
-
-title.style.color=
-data.title_color || "#ffd700";
-
-half.style.color=
-data.half_text_color || "#ffffff";
-
-clock.style.color=
-data.time_text_color || "#ffffff";
-
-team1.style.color=
-data.team1_text_color || "#ffffff";
-
-team2.style.color=
-data.team2_text_color || "#ffffff";
-
-score1Box.style.background=
-data.score_bg_color || "#ffffff";
-
-score2Box.style.background=
-data.score_bg_color || "#ffffff";
-
-score1.style.color=
-data.score_text_color || "#000000";
-
-score2.style.color=
-data.score_text_color || "#000000";
+${data.team2_color1 || "#ff0000"},
+${data.team2_color2 || "#ffff66"})`;
 
 }
 
