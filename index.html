@@ -1,66 +1,142 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Scoreboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
 <style>
 body{
 margin:0;
 background:transparent;
 font-family:Arial,sans-serif;
+overflow:hidden;
 }
+
 .board{
 position:absolute;
 top:20px;
-left:50%;
-transform:translateX(-50%);
+left:20px;
+background:rgba(0,0,0,.75);
+padding:12px 20px;
+border-radius:14px;
+color:#fff;
+min-width:420px;
+}
+
+.title{
+text-align:center;
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+color:#ffd700;
+}
+
+.row{
 display:flex;
+justify-content:space-between;
 align-items:center;
-background:#111;
-color:white;
-border-radius:12px;
-overflow:hidden;
+font-size:28px;
+font-weight:bold;
 }
+
 .team{
-padding:15px 25px;
-font-size:28px;
-font-weight:bold;
+width:140px;
 }
+
 .score{
-background:#222;
-padding:15px 20px;
-font-size:40px;
-font-weight:bold;
+font-size:42px;
+padding:0 10px;
 }
-.timer{
-background:#ffcc00;
-color:black;
-padding:15px 20px;
-font-size:28px;
+
+.time{
+text-align:center;
+font-size:34px;
 font-weight:bold;
+color:#ffff00;
+margin-top:8px;
+}
+
+.half{
+text-align:center;
+font-size:18px;
+font-weight:bold;
+margin-top:4px;
 }
 </style>
 </head>
+
 <body>
 
 <div class="board">
-<div class="team" id="team1">TEAM A</div>
-<div class="score" id="score1">0</div>
-<div class="timer" id="timer">00:00</div>
-<div class="score" id="score2">0</div>
-<div class="team" id="team2">TEAM B</div>
+<div class="title" id="title">FRIENDLY MATCH</div>
+
+<div class="row">
+<div class="team" id="team1">HOME</div>
+
+<div class="score">
+<span id="score1">0</span>
+-
+<span id="score2">0</span>
+</div>
+
+<div class="team" id="team2" style="text-align:right">AWAY</div>
+</div>
+
+<div class="time" id="clock">00:00</div>
+<div class="half" id="half">1ST HALF</div>
 </div>
 
 <script>
-function loadData(){
-let d=JSON.parse(localStorage.getItem("scoreboard")||"{}");
-document.getElementById("team1").innerText=d.team1||"TEAM A";
-document.getElementById("team2").innerText=d.team2||"TEAM B";
-document.getElementById("score1").innerText=d.score1||0;
-document.getElementById("score2").innerText=d.score2||0;
-document.getElementById("timer").innerText=d.timer||"00:00";
+
+async function loadData(){
+
+const { data } = await supabaseClient
+.from('scoreboard')
+.select('*')
+.eq('id',1)
+.single();
+
+if(!data) return;
+
+document.getElementById("title").innerText =
+data.match_title || "MATCH";
+
+document.getElementById("team1").innerText =
+data.team1;
+
+document.getElementById("team2").innerText =
+data.team2;
+
+document.getElementById("score1").innerText =
+data.score1;
+
+document.getElementById("score2").innerText =
+data.score2;
+
+document.getElementById("team1").style.color =
+data.team1_color1;
+
+document.getElementById("team2").style.color =
+data.team2_color1;
+
+document.getElementById("half").innerText =
+data.half;
+
+document.getElementById("clock").innerText =
+String(data.minute).padStart(2,'0')
++ ":"
++
+String(data.second).padStart(2,'0');
+
 }
-setInterval(loadData,500);
+
+loadData();
+
+setInterval(loadData,1000);
+
 </script>
 
 </body>
