@@ -211,12 +211,23 @@ async function startTimer(){
 
 if(timer) return;
 
+await supabaseClient
+.from('scoreboard')
+.update({
+running:true
+})
+.eq('id',1);
+
 timer=setInterval(async()=>{
 
 let d=await getData();
 
-let m=d.minute;
-let s=d.second+1;
+if(!d.running) return;
+
+let m=parseInt(d.minute||0);
+let s=parseInt(d.second||0);
+
+s++;
 
 if(s>=60){
 m++;
@@ -231,6 +242,39 @@ second:s
 })
 .eq('id',1);
 
+},1000);
+
+}
+
+async function stopTimer(){
+
+clearInterval(timer);
+timer=null;
+
+await supabaseClient
+.from('scoreboard')
+.update({
+running:false
+})
+.eq('id',1);
+
+}
+
+async function resetTimer(){
+
+clearInterval(timer);
+timer=null;
+
+await supabaseClient
+.from('scoreboard')
+.update({
+minute:0,
+second:0,
+running:false
+})
+.eq('id',1);
+
+}
 },1000);
 
 }
