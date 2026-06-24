@@ -1,34 +1,193 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Admin Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<style>
+body{
+font-family:Arial;
+padding:15px;
+background:#111;
+color:white;
+}
+input,button,select{
+width:100%;
+padding:10px;
+margin:5px 0;
+font-size:18px;
+}
+.row{
+display:flex;
+gap:5px;
+}
+.row button{
+flex:1;
+}
+</style>
 </head>
 <body>
 
-<h2>Scoreboard Admin</h2>
+<h2>Football Scoreboard Admin</h2>
 
-<input id="team1" placeholder="Team 1"><br><br>
-<input id="score1" placeholder="Score 1"><br><br>
+<input id="title" placeholder="Match Title">
 
-<input id="team2" placeholder="Team 2"><br><br>
-<input id="score2" placeholder="Score 2"><br><br>
+<input id="team1" placeholder="Team 1">
+<input type="color" id="c11">
+<input type="color" id="c12">
 
-<input id="timer" placeholder="00:00"><br><br>
+<input id="team2" placeholder="Team 2">
+<input type="color" id="c21">
+<input type="color" id="c22">
 
-<button onclick="save()">Update</button>
+<h3>Score</h3>
+
+<div class="row">
+<button onclick="goal1(1)">HOME +</button>
+<button onclick="goal1(-1)">HOME -</button>
+</div>
+
+<div class="row">
+<button onclick="goal2(1)">AWAY +</button>
+<button onclick="goal2(-1)">AWAY -</button>
+</div>
+
+<h3>Half</h3>
+
+<button onclick="setHalf('1ST HALF')">1ST HALF</button>
+<button onclick="setHalf('2ND HALF')">2ND HALF</button>
+<button onclick="setHalf('FT')">FULL TIME</button>
+
+<h3>Timer</h3>
+
+<button onclick="startTimer()">START</button>
+<button onclick="stopTimer()">STOP</button>
+<button onclick="resetTimer()">RESET</button>
+
+<button onclick="saveTeams()">SAVE TEAM INFO</button>
 
 <script>
-function save(){
-localStorage.setItem("scoreboard",JSON.stringify({
-team1:team1.value,
-score1:score1.value,
-team2:team2.value,
-score2:score2.value,
-timer:timer.value
-}));
-alert("Updated");
+
+async function getData(){
+const {data}=await supabaseClient
+.from('scoreboard')
+.select('*')
+.eq('id',1)
+.single();
+
+return data;
 }
+
+async function saveTeams(){
+
+await supabaseClient
+.from('scoreboard')
+.update({
+match_title:title.value,
+team1:team1.value,
+team2:team2.value,
+team1_color1:c11.value,
+team1_color2:c12.value,
+team2_color1:c21.value,
+team2_color2:c22.value
+})
+.eq('id',1);
+
+alert("Saved");
+}
+
+async function goal1(v){
+
+let d=await getData();
+
+await supabaseClient
+.from('scoreboard')
+.update({
+score1:Math.max(0,d.score1+v)
+})
+.eq('id',1);
+
+}
+
+async function goal2(v){
+
+let d=await getData();
+
+await supabaseClient
+.from('scoreboard')
+.update({
+score2:Math.max(0,d.score2+v)
+})
+.eq('id',1);
+
+}
+
+async function setHalf(h){
+
+await supabaseClient
+.from('scoreboard')
+.update({
+half:h
+})
+.eq('id',1);
+
+}
+
+let timer=null;
+
+async function startTimer(){
+
+if(timer) return;
+
+timer=setInterval(async ()=>{
+
+let d=await getData();
+
+let m=d.minute;
+let s=d.second+1;
+
+if(s>=60){
+m++;
+s=0;
+}
+
+await supabaseClient
+.from('scoreboard')
+.update({
+minute:m,
+second:s
+})
+.eq('id',1);
+
+},1000);
+
+}
+
+function stopTimer(){
+
+clearInterval(timer);
+timer=null;
+
+}
+
+async function resetTimer(){
+
+clearInterval(timer);
+timer=null;
+
+await supabaseClient
+.from('scoreboard')
+.update({
+minute:0,
+second:0
+})
+.eq('id',1);
+
+}
+
 </script>
 
 </body>
