@@ -2,30 +2,54 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Admin Panel</title>
+<title>Football Scoreboard Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
 
 <style>
 body{
-font-family:Arial;
-padding:15px;
 background:#111;
 color:white;
+font-family:Arial,sans-serif;
+padding:15px;
 }
-input,button,select{
+
+h2,h3{
+margin-top:20px;
+}
+
+input,button{
 width:100%;
 padding:10px;
 margin:5px 0;
-font-size:18px;
+font-size:16px;
+border-radius:8px;
+border:none;
 }
+
+button{
+background:#333;
+color:white;
+}
+
 .row{
 display:flex;
-gap:5px;
+gap:8px;
 }
+
 .row button{
 flex:1;
+}
+
+.color-row{
+display:flex;
+gap:8px;
+}
+
+.color-row input{
+flex:1;
+height:50px;
 }
 </style>
 </head>
@@ -33,15 +57,44 @@ flex:1;
 
 <h2>Football Scoreboard Admin</h2>
 
+<h3>Match</h3>
+
 <input id="title" placeholder="Match Title">
 
 <input id="team1" placeholder="Team 1">
-<input type="color" id="c11">
-<input type="color" id="c12">
+<div class="color-row">
+<input type="color" id="c11" value="#ff0000">
+<input type="color" id="c12" value="#990000">
+</div>
+
+<input type="color" id="team1_text_color" value="#ffffff">
 
 <input id="team2" placeholder="Team 2">
-<input type="color" id="c21">
-<input type="color" id="c22">
+<div class="color-row">
+<input type="color" id="c21" value="#ffaa00">
+<input type="color" id="c22" value="#ffdd00">
+</div>
+
+<input type="color" id="team2_text_color" value="#ffffff">
+
+<h3>Text Colors</h3>
+
+<label>Title Color</label>
+<input type="color" id="title_color" value="#ffd700">
+
+<label>Half Color</label>
+<input type="color" id="half_text_color" value="#ffffff">
+
+<label>Time Color</label>
+<input type="color" id="time_text_color" value="#ffffff">
+
+<label>Score Box Color</label>
+<input type="color" id="score_bg_color" value="#ffffff">
+
+<label>Score Text Color</label>
+<input type="color" id="score_text_color" value="#000000">
+
+<button onclick="saveTeams()">SAVE TEAM INFO</button>
 
 <h3>Score</h3>
 
@@ -57,17 +110,19 @@ flex:1;
 
 <h3>Half</h3>
 
+<div class="row">
 <button onclick="setHalf('1ST HALF')">1ST HALF</button>
 <button onclick="setHalf('2ND HALF')">2ND HALF</button>
 <button onclick="setHalf('FT')">FULL TIME</button>
+</div>
 
 <h3>Timer</h3>
 
+<div class="row">
 <button onclick="startTimer()">START</button>
 <button onclick="stopTimer()">STOP</button>
 <button onclick="resetTimer()">RESET</button>
-
-<button onclick="saveTeams()">SAVE TEAM INFO</button>
+</div>
 
 <script>
 
@@ -77,7 +132,6 @@ const {data}=await supabaseClient
 .select('*')
 .eq('id',1)
 .single();
-
 return data;
 }
 
@@ -86,13 +140,28 @@ async function saveTeams(){
 await supabaseClient
 .from('scoreboard')
 .update({
+
 match_title:title.value,
+
 team1:team1.value,
 team2:team2.value,
+
 team1_color1:c11.value,
 team1_color2:c12.value,
+
 team2_color1:c21.value,
-team2_color2:c22.value
+team2_color2:c22.value,
+
+title_color:title_color.value,
+half_text_color:half_text_color.value,
+time_text_color:time_text_color.value,
+
+team1_text_color:team1_text_color.value,
+team2_text_color:team2_text_color.value,
+
+score_bg_color:score_bg_color.value,
+score_text_color:score_text_color.value
+
 })
 .eq('id',1);
 
@@ -142,7 +211,7 @@ async function startTimer(){
 
 if(timer) return;
 
-timer=setInterval(async ()=>{
+timer=setInterval(async()=>{
 
 let d=await getData();
 
