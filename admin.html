@@ -1,6 +1,35 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset="utf-8">
+<title>Admin Panel</title>
+</head>
 <body>
-<h1>ADMIN PANEL</h1>
+
+<h2>Scoreboard Admin</h2>
+
+<input id="team1" placeholder="Team 1"><br><br>
+<input id="score1" placeholder="Score 1"><br><br>
+
+<input id="team2" placeholder="Team 2"><br><br>
+<input id="score2" placeholder="Score 2"><br><br>
+
+<input id="timer" placeholder="00:00"><br><br>
+
+<button onclick="save()">Update</button>
+
+<script>
+function save(){
+localStorage.setItem("scoreboard",JSON.stringify({
+team1:team1.value,
+score1:score1.value,
+team2:team2.value,
+score2:score2.value,
+timer:timer.value
+}));
+alert("Updated");
+}
+</script>
+
 </body>
 </html>
