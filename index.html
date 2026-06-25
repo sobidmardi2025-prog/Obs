@@ -164,6 +164,38 @@ String(data.minute || 0).padStart(2,'0')
 ":"
 +
 String(data.second || 0).padStart(2,'0');
+  if(data.running){
+
+let now = Date.now();
+
+if(!window.lastTime){
+window.lastTime = now;
+}
+
+let diff = Math.floor((now - window.lastTime)/1000);
+
+if(diff > 0){
+
+let m = parseInt(data.minute || 0);
+let s = parseInt(data.second || 0);
+
+s += diff;
+
+m += Math.floor(s/60);
+s = s % 60;
+
+clock.innerText =
+String(m).padStart(2,'0')
++
+":"
++
+String(s).padStart(2,'0');
+
+}
+
+}else{
+window.lastTime = Date.now();
+}
 
 team1.style.background =
 `linear-gradient(90deg,
