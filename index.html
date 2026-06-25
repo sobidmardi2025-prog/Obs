@@ -139,6 +139,25 @@ const {data}=await supabaseClient
 .single();
 
 if(!data) return;
+  half.style.color =
+data.half_text_color || "#ffffff";
+
+clock.style.color =
+data.time_text_color || "#ffffff";
+
+team1.style.color =
+data.team1_text_color || "#ffffff";
+
+team2.style.color =
+data.team2_text_color || "#ffffff";
+
+document.querySelectorAll('.score').forEach(el=>{
+el.style.background =
+data.score_bg_color || "#ffffff";
+
+el.style.color =
+data.score_text_color || "#000000";
+});
 
 title.innerText =
 data.match_title || "MATCH";
