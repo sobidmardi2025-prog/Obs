@@ -8,6 +8,7 @@
 <script src="supabase.js"></script>
 
 <style>
+
 body{
 margin:0;
 background:transparent;
@@ -95,13 +96,6 @@ color:#000;
 border-left:2px solid #ddd;
 }
 
-#team1{
-background:linear-gradient(90deg,#ff0000,#00ff00);
-}
-
-#team2{
-background:linear-gradient(90deg,#ff0000,#ffff66);
-}
 </style>
 </head>
 
@@ -110,7 +104,7 @@ background:linear-gradient(90deg,#ff0000,#ffff66);
 <div class="board">
 
 <div class="leftpanel">
-<div class="halfbox" id="half">1ST</div>
+<div class="halfbox" id="half">1ST HALF</div>
 <div class="timebox" id="clock">00:00</div>
 </div>
 
@@ -138,7 +132,7 @@ FOOTBALL MATCH
 
 async function loadData(){
 
-const { data } = await supabaseClient
+const {data}=await supabaseClient
 .from('scoreboard')
 .select('*')
 .eq('id',1)
@@ -146,45 +140,46 @@ const { data } = await supabaseClient
 
 if(!data) return;
 
-document.getElementById("title").innerText =
+title.innerText =
 data.match_title || "MATCH";
 
-document.getElementById("team1").innerText =
+team1.innerText =
 data.team1 || "TEAM A";
 
-document.getElementById("team2").innerText =
+team2.innerText =
 data.team2 || "TEAM B";
 
-document.getElementById("score1").innerText =
+score1.innerText =
 data.score1 ?? 0;
 
-document.getElementById("score2").innerText =
+score2.innerText =
 data.score2 ?? 0;
 
-document.getElementById("half").innerText =
-data.half || "1ST";
+half.innerText =
+data.half || "1ST HALF";
 
-document.getElementById("clock").innerText =
+clock.innerText =
 String(data.minute || 0).padStart(2,'0')
 +
 ":"
 +
 String(data.second || 0).padStart(2,'0');
 
-document.getElementById("team1").style.background =
+team1.style.background =
 `linear-gradient(90deg,
 ${data.team1_color1 || "#ff0000"},
-${data.team1_color2 || "#00ff00"})`;
+${data.team1_color2 || "#990000"})`;
 
-document.getElementById("team2").style.background =
+team2.style.background =
 `linear-gradient(90deg,
-${data.team2_color1 || "#ff0000"},
-${data.team2_color2 || "#ffff66"})`;
+${data.team2_color1 || "#ffaa00"},
+${data.team2_color2 || "#ffdd00"})`;
 
 }
 
 loadData();
-setInterval(loadData,1000);
+
+setInterval(loadData,500);
 
 </script>
 
