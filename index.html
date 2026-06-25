@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Football Scoreboard</title>
+<title>Realtime Scoreboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
@@ -11,7 +11,7 @@
 body{
 margin:0;
 background:transparent;
-font-family:Arial,sans-serif;
+font-family:Arial;
 overflow:hidden;
 }
 
@@ -20,80 +20,36 @@ position:absolute;
 top:20px;
 left:20px;
 display:flex;
-align-items:flex-start;
-gap:8px;
+gap:10px;
 }
 
-.leftpanel{
-display:flex;
-flex-direction:column;
-gap:6px;
-}
-
-.halfbox{
+.box{
 background:#111;
-width:90px;
-height:42px;
-border-radius:4px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:18px;
+color:#fff;
+padding:10px;
+border-radius:6px;
 font-weight:bold;
-}
-
-.timebox{
-background:#111;
-width:90px;
-height:42px;
-border-radius:4px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:24px;
-font-weight:bold;
-}
-
-.rightpanel{
-display:flex;
-flex-direction:column;
-}
-
-.title{
-background:#000;
-height:20px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:12px;
-font-weight:bold;
-width:330px;
-color:#ffd700;
-}
-
-.row{
-display:flex;
-height:42px;
+text-align:center;
 }
 
 .team{
 width:260px;
-display:flex;
-align-items:center;
-padding-left:10px;
 font-size:22px;
-font-weight:bold;
-color:#fff;
 }
 
 .score{
-width:70px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:30px;
-font-weight:bold;
+width:80px;
+font-size:28px;
 border-left:2px solid #fff;
+}
+
+.title{
+background:#000;
+color:#ffd700;
+width:340px;
+text-align:center;
+padding:4px;
+font-size:12px;
 }
 </style>
 </head>
@@ -101,108 +57,72 @@ border-left:2px solid #fff;
 <body>
 
 <div class="board">
+  <div>
+    <div class="box" id="half">1ST HALF</div>
+    <div class="box" id="clock">00:00</div>
+  </div>
 
-<div class="leftpanel">
-<div class="halfbox" id="half">1ST HALF</div>
-<div class="timebox" id="clock">00:00</div>
-</div>
+  <div>
+    <div class="title" id="title">MATCH</div>
 
-<div class="rightpanel">
+    <div style="display:flex;">
+      <div class="box team" id="team1">TEAM A</div>
+      <div class="box score" id="score1">0</div>
+    </div>
 
-<div class="title" id="title">
-FOOTBALL MATCH
-</div>
-
-<div class="row">
-<div class="team" id="team1">TEAM A</div>
-<div class="score" id="score1">0</div>
-</div>
-
-<div class="row">
-<div class="team" id="team2">TEAM B</div>
-<div class="score" id="score2">0</div>
-</div>
-
-</div>
-
+    <div style="display:flex;">
+      <div class="box team" id="team2">TEAM B</div>
+      <div class="box score" id="score2">0</div>
+    </div>
+  </div>
 </div>
 
 <script>
+function render(data){
 
-async function loadData(){
+document.getElementById("title").innerText = data.match_title || "MATCH";
+document.getElementById("team1").innerText = data.team1 || "TEAM A";
+document.getElementById("team2").innerText = data.team2 || "TEAM B";
 
-const {data}=await supabaseClient
-.from('scoreboard')
-.select('*')
-.eq('id',1)
-.single();
+document.getElementById("score1").innerText = data.score1 || 0;
+document.getElementById("score2").innerText = data.score2 || 0;
 
-if(!data) return;
+document.getElementById("half").innerText = data.half || "1ST HALF";
 
-title.innerText =
-data.match_title || "MATCH";
-
-team1.innerText =
-data.team1 || "TEAM A";
-
-team2.innerText =
-data.team2 || "TEAM B";
-
-score1.innerText =
-data.score1 ?? 0;
-
-score2.innerText =
-data.score2 ?? 0;
-
-half.innerText =
-data.half || "1ST HALF";
-
-clock.innerText =
-String(data.minute || 0).padStart(2,'0')
-+
-":"
-+
+document.getElementById("clock").innerText =
+String(data.minute || 0).padStart(2,'0') +
+":" +
 String(data.second || 0).padStart(2,'0');
-
-team1.style.background =
-`linear-gradient(90deg,
-${data.team1_color1 || "#ff0000"},
-${data.team1_color2 || "#990000"})`;
-
-team2.style.background =
-`linear-gradient(90deg,
-${data.team2_color1 || "#ffaa00"},
-${data.team2_color2 || "#ffdd00"})`;
-
-team1.style.color =
-data.team1_text_color || "#ffffff";
-
-team2.style.color =
-data.team2_text_color || "#ffffff";
-
-half.style.color =
-data.half_text_color || "#ffffff";
-
-clock.style.color =
-data.time_text_color || "#ffffff";
-
-score1.style.background =
-data.score_bg_color || "#ffffff";
-
-score2.style.background =
-data.score_bg_color || "#ffffff";
-
-score1.style.color =
-data.score_text_color || "#000000";
-
-score2.style.color =
-data.score_text_color || "#000000";
-
 }
 
-loadData();
-setInterval(loadData,500);
+async function initialLoad(){
+const {data}=await supabaseClient
+.from("scoreboard")
+.select("*")
+.eq("id",1)
+.single();
 
+if(data) render(data);
+}
+
+initialLoad();
+
+/* 🔴 REALTIME LISTENER */
+supabaseClient
+.channel('scoreboard-live')
+.on(
+  'postgres_changes',
+  {
+    event: '*',
+    schema: 'public',
+    table: 'scoreboard',
+    filter: 'id=eq.1'
+  },
+  (payload) => {
+    render(payload.new);
+  }
+)
+.subscribe();
 </script>
 
 </body>
