@@ -2,261 +2,139 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Football Scoreboard Admin</title>
+<title>Football Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
 
 <style>
 body{
-background:#111;
-color:white;
-font-family:Arial,sans-serif;
-padding:15px;
+margin:0;
+background:#0f0f0f;
+color:#fff;
+font-family:Arial;
+padding:20px;
 }
 
-input,button{
+h2{
+text-align:center;
+color:#ffd700;
+}
+
+.box{
+max-width:400px;
+margin:auto;
+background:#1a1a1a;
+padding:15px;
+border-radius:10px;
+}
+
+input,select,button{
 width:100%;
 padding:10px;
-margin:5px 0;
-font-size:16px;
-border-radius:8px;
+margin:6px 0;
+border-radius:5px;
 border:none;
+font-size:14px;
 }
 
 button{
-background:#333;
-color:white;
+background:#00c853;
+font-weight:bold;
+cursor:pointer;
 }
 
-.row{
-display:flex;
-gap:8px;
-}
-
-.row button{
-flex:1;
-}
-
-.color-row{
-display:flex;
-gap:8px;
-}
-
-.color-row input{
-flex:1;
-height:50px;
+button:hover{
+background:#00b34a;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Football Scoreboard Admin</h2>
+<h2>⚙️ ADMIN PANEL</h2>
 
-<input id="title" placeholder="Match Title">
+<div class="box">
 
+<input id="match_title" placeholder="Match Title">
 <input id="team1" placeholder="Team 1">
-<div class="color-row">
-<input type="color" id="c11" value="#ff0000">
-<input type="color" id="c12" value="#990000">
-</div>
-
 <input id="team2" placeholder="Team 2">
-<div class="color-row">
-<input type="color" id="c21" value="#ffaa00">
-<input type="color" id="c22" value="#ffdd00">
+
+<input id="score1" type="number" placeholder="Score 1">
+<input id="score2" type="number" placeholder="Score 2">
+
+<input id="minute" type="number" placeholder="Minute">
+<input id="second" type="number" placeholder="Second">
+
+<select id="half">
+  <option value="1ST HALF">1ST HALF</option>
+  <option value="2ND HALF">2ND HALF</option>
+  <option value="FULL TIME">FULL TIME</option>
+</select>
+
+<h4>🎨 Colors</h4>
+
+<input id="team1_color1" placeholder="Team1 Color1">
+<input id="team1_color2" placeholder="Team1 Color2">
+
+<input id="team2_color1" placeholder="Team2 Color1">
+<input id="team2_color2" placeholder="Team2 Color2">
+
+<input id="team1_text_color" placeholder="Team1 Text Color">
+<input id="team2_text_color" placeholder="Team2 Text Color">
+
+<input id="half_text_color" placeholder="Half Text Color">
+<input id="time_text_color" placeholder="Time Text Color">
+
+<input id="score_bg_color" placeholder="Score BG Color">
+<input id="score_text_color" placeholder="Score Text Color">
+
+<button onclick="update()">🔴 UPDATE LIVE</button>
+
 </div>
-
-<button onclick="saveTeams()">SAVE TEAM INFO</button>
-
-<h3>Score</h3>
-
-<div class="row">
-<button onclick="goal1(1)">HOME +</button>
-<button onclick="goal1(-1)">HOME -</button>
-</div>
-
-<div class="row">
-<button onclick="goal2(1)">AWAY +</button>
-<button onclick="goal2(-1)">AWAY -</button>
-</div>
-
-<h3>Half</h3>
-
-<div class="row">
-<button onclick="setHalf('1ST HALF')">1ST HALF</button>
-<button onclick="setHalf('2ND HALF')">2ND HALF</button>
-<button onclick="setHalf('FT')">FULL TIME</button>
-</div>
-
-<h3>Timer</h3>
-
-<div class="row">
-<button onclick="startTimer()">START</button>
-<button onclick="stopTimer()">STOP</button>
-<button onclick="resetTimer()">RESET</button>
-</div>
-
-<h3>LIVE PREVIEW</h3>
-
-<iframe
-src="index.html"
-width="100%"
-height="250"
-style="border:2px solid #444;border-radius:10px;background:black;">
-</iframe>
 
 <script>
+async function update(){
 
-let timer=null;
+  const { error } = await supabaseClient
+    .from("scoreboard")
+    .update({
+      match_title: document.getElementById("match_title").value,
+      team1: document.getElementById("team1").value,
+      team2: document.getElementById("team2").value,
 
-async function getData(){
-const {data}=await supabaseClient
-.from('scoreboard')
-.select('*')
-.eq('id',1)
-.single();
+      score1: Number(document.getElementById("score1").value || 0),
+      score2: Number(document.getElementById("score2").value || 0),
 
-return data;
+      minute: Number(document.getElementById("minute").value || 0),
+      second: Number(document.getElementById("second").value || 0),
+
+      half: document.getElementById("half").value,
+
+      team1_color1: document.getElementById("team1_color1").value,
+      team1_color2: document.getElementById("team1_color2").value,
+
+      team2_color1: document.getElementById("team2_color1").value,
+      team2_color2: document.getElementById("team2_color2").value,
+
+      team1_text_color: document.getElementById("team1_text_color").value,
+      team2_text_color: document.getElementById("team2_text_color").value,
+
+      half_text_color: document.getElementById("half_text_color").value,
+      time_text_color: document.getElementById("time_text_color").value,
+
+      score_bg_color: document.getElementById("score_bg_color").value,
+      score_text_color: document.getElementById("score_text_color").value
+
+    })
+    .eq("id", 1);
+
+  if(error){
+    alert("❌ Error: " + error.message);
+  } else {
+    alert("✅ Updated Successfully!");
+  }
 }
-
-async function saveTeams(){
-
-await supabaseClient
-.from('scoreboard')
-.update({
-match_title:title.value,
-team1:team1.value,
-team2:team2.value,
-team1_color1:c11.value,
-team1_color2:c12.value,
-team2_color1:c21.value,
-team2_color2:c22.value
-})
-.eq('id',1);
-
-alert("Saved");
-}
-
-async function goal1(v){
-
-let d=await getData();
-
-await supabaseClient
-.from('scoreboard')
-.update({
-score1:Math.max(0,(d.score1||0)+v)
-})
-.eq('id',1);
-
-}
-
-async function goal2(v){
-
-let d=await getData();
-
-await supabaseClient
-.from('scoreboard')
-.update({
-score2:Math.max(0,(d.score2||0)+v)
-})
-.eq('id',1);
-
-}
-
-async function setHalf(h){
-
-await supabaseClient
-.from('scoreboard')
-.update({
-half:h
-})
-.eq('id',1);
-
-}
-
-async function startTimer(){
-
-if(timer) return;
-
-await supabaseClient
-.from('scoreboard')
-.update({
-running:true
-})
-.eq('id',1);
-
-timer=setInterval(async()=>{
-
-let d=await getData();
-
-if(!d.running) return;
-
-let m=parseInt(d.minute||0);
-let s=parseInt(d.second||0);
-
-s++;
-
-if(s>=60){
-m++;
-s=0;
-}
-
-await supabaseClient
-.from('scoreboard')
-.update({
-minute:m,
-second:s
-})
-.eq('id',1);
-
-},1000);
-
-}
-
-async function stopTimer(){
-
-clearInterval(timer);
-timer=null;
-
-await supabaseClient
-.from('scoreboard')
-.update({
-running:false
-})
-.eq('id',1);
-
-}
-
-async function resetTimer(){
-
-clearInterval(timer);
-timer=null;
-
-await supabaseClient
-.from('scoreboard')
-.update({
-minute:0,
-second:0,
-running:false
-})
-.eq('id',1);
-
-}
-
-window.onload=async()=>{
-
-let d=await getData();
-
-if(!d) return;
-
-title.value=d.match_title||"";
-team1.value=d.team1||"";
-team2.value=d.team2||"";
-
-};
-
 </script>
 
 </body>
