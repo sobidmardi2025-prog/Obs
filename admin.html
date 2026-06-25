@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Football Admin</title>
+<title>Live Scoreboard Studio</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
@@ -10,30 +10,26 @@
 <style>
 body{
 margin:0;
-background:#0f0f0f;
-color:#fff;
 font-family:Arial;
-padding:20px;
+background:#0b0b0b;
+color:white;
+display:flex;
+height:100vh;
 }
 
-h2{
-text-align:center;
-color:#ffd700;
-}
-
-.box{
-max-width:400px;
-margin:auto;
-background:#1a1a1a;
+/* LEFT ADMIN */
+.admin{
+width:35%;
 padding:15px;
-border-radius:10px;
+background:#151515;
+overflow:auto;
 }
 
 input,select,button{
 width:100%;
 padding:10px;
 margin:6px 0;
-border-radius:5px;
+border-radius:6px;
 border:none;
 font-size:14px;
 }
@@ -44,17 +40,88 @@ font-weight:bold;
 cursor:pointer;
 }
 
-button:hover{
-background:#00b34a;
+/* RIGHT PREVIEW */
+.preview{
+width:65%;
+display:flex;
+align-items:center;
+justify-content:center;
+background:#000;
+}
+
+.board{
+display:flex;
+align-items:center;
+gap:10px;
+transform:scale(1.3);
+}
+
+/* SCOREBOARD STYLE */
+.leftpanel{
+display:flex;
+flex-direction:column;
+gap:6px;
+}
+
+.box{
+background:#111;
+width:100px;
+height:45px;
+display:flex;
+align-items:center;
+justify-content:center;
+border-radius:6px;
+font-weight:bold;
+}
+
+.time{ font-size:22px; }
+
+.right{
+display:flex;
+flex-direction:column;
+}
+
+.title{
+background:#000;
+color:#ffd700;
+font-size:12px;
+text-align:center;
+padding:4px;
+width:340px;
+}
+
+.row{
+display:flex;
+height:45px;
+}
+
+.team{
+width:260px;
+padding-left:10px;
+display:flex;
+align-items:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.score{
+width:80px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+font-weight:bold;
+border-left:2px solid #fff;
 }
 </style>
 </head>
 
 <body>
 
-<h2>⚙️ ADMIN PANEL</h2>
+<!-- ADMIN -->
+<div class="admin">
 
-<div class="box">
+<h2>⚙️ CONTROL PANEL</h2>
 
 <input id="match_title" placeholder="Match Title">
 <input id="team1" placeholder="Team 1">
@@ -67,12 +134,12 @@ background:#00b34a;
 <input id="second" type="number" placeholder="Second">
 
 <select id="half">
-  <option value="1ST HALF">1ST HALF</option>
-  <option value="2ND HALF">2ND HALF</option>
-  <option value="FULL TIME">FULL TIME</option>
+<option>1ST HALF</option>
+<option>2ND HALF</option>
+<option>FULL TIME</option>
 </select>
 
-<h4>🎨 Colors</h4>
+<h3>🎨 Colors</h3>
 
 <input id="team1_color1" placeholder="Team1 Color1">
 <input id="team1_color2" placeholder="Team1 Color2">
@@ -80,60 +147,106 @@ background:#00b34a;
 <input id="team2_color1" placeholder="Team2 Color1">
 <input id="team2_color2" placeholder="Team2 Color2">
 
-<input id="team1_text_color" placeholder="Team1 Text Color">
-<input id="team2_text_color" placeholder="Team2 Text Color">
-
-<input id="half_text_color" placeholder="Half Text Color">
-<input id="time_text_color" placeholder="Time Text Color">
-
-<input id="score_bg_color" placeholder="Score BG Color">
-<input id="score_text_color" placeholder="Score Text Color">
+<input id="score_bg_color" placeholder="Score BG">
+<input id="score_text_color" placeholder="Score Text">
 
 <button onclick="update()">🔴 UPDATE LIVE</button>
 
 </div>
 
+<!-- PREVIEW -->
+<div class="preview">
+
+<div class="board">
+
+  <div class="leftpanel">
+    <div class="box" id="half">1ST HALF</div>
+    <div class="box time" id="clock">00:00</div>
+  </div>
+
+  <div class="right">
+    <div class="title" id="title">MATCH</div>
+
+    <div class="row">
+      <div class="team" id="t1">TEAM A</div>
+      <div class="score" id="s1">0</div>
+    </div>
+
+    <div class="row">
+      <div class="team" id="t2">TEAM B</div>
+      <div class="score" id="s2">0</div>
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
 <script>
+async function load(){
+
+const {data}=await supabaseClient
+.from("scoreboard")
+.select("*")
+.eq("id",1)
+.single();
+
+if(!data) return;
+
+/* TEXT */
+title.innerText=data.match_title||"MATCH";
+t1.innerText=data.team1||"TEAM A";
+t2.innerText=data.team2||"TEAM B";
+s1.innerText=data.score1||0;
+s2.innerText=data.score2||0;
+half.innerText=data.half||"1ST HALF";
+
+clock.innerText=
+String(data.minute||0).padStart(2,'0')+
+":"+
+String(data.second||0).padStart(2,'0');
+
+/* COLORS */
+t1.style.background=
+`linear-gradient(90deg,${data.team1_color1||"#ff0000"},${data.team1_color2||"#990000"})`;
+
+t2.style.background=
+`linear-gradient(90deg,${data.team2_color1||"#00aaff"},${data.team2_color2||"#0044ff"})`;
+
+s1.style.background=data.score_bg_color||"#fff";
+s2.style.background=data.score_bg_color||"#fff";
+
+s1.style.color=data.score_text_color||"#000";
+s2.style.color=data.score_text_color||"#000";
+}
+
+load();
+setInterval(load,2000);
+
 async function update(){
 
-  const { error } = await supabaseClient
-    .from("scoreboard")
-    .update({
-      match_title: document.getElementById("match_title").value,
-      team1: document.getElementById("team1").value,
-      team2: document.getElementById("team2").value,
+await supabaseClient
+.from("scoreboard")
+.update({
+match_title:match_title.value,
+team1:team1.value,
+team2:team2.value,
+score1:Number(score1.value||0),
+score2:Number(score2.value||0),
+minute:Number(minute.value||0),
+second:Number(second.value||0),
+half:half.value,
+team1_color1:team1_color1.value,
+team1_color2:team1_color2.value,
+team2_color1:team2_color1.value,
+team2_color2:team2_color2.value,
+score_bg_color:score_bg_color.value,
+score_text_color:score_text_color.value
+})
+.eq("id",1);
 
-      score1: Number(document.getElementById("score1").value || 0),
-      score2: Number(document.getElementById("score2").value || 0),
-
-      minute: Number(document.getElementById("minute").value || 0),
-      second: Number(document.getElementById("second").value || 0),
-
-      half: document.getElementById("half").value,
-
-      team1_color1: document.getElementById("team1_color1").value,
-      team1_color2: document.getElementById("team1_color2").value,
-
-      team2_color1: document.getElementById("team2_color1").value,
-      team2_color2: document.getElementById("team2_color2").value,
-
-      team1_text_color: document.getElementById("team1_text_color").value,
-      team2_text_color: document.getElementById("team2_text_color").value,
-
-      half_text_color: document.getElementById("half_text_color").value,
-      time_text_color: document.getElementById("time_text_color").value,
-
-      score_bg_color: document.getElementById("score_bg_color").value,
-      score_text_color: document.getElementById("score_text_color").value
-
-    })
-    .eq("id", 1);
-
-  if(error){
-    alert("❌ Error: " + error.message);
-  } else {
-    alert("✅ Updated Successfully!");
-  }
+alert("LIVE UPDATED 🔥");
 }
 </script>
 
