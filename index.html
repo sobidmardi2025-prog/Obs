@@ -1,129 +1,304 @@
-<!DOCTYPE html>
-<html>
+    <!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Realtime Scoreboard</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Broadcast Football Scoreboard</title>
 
 <style>
-body{
-margin:0;
-background:transparent;
-font-family:Arial;
-overflow:hidden;
+  /* Blue Broadcast Wings */
+
+.left{
+position:relative;
+overflow:visible;
 }
 
-.board{
+.left::after{
+
+content:"";
+
 position:absolute;
-top:20px;
-left:20px;
-display:flex;
-gap:10px;
+
+right:-45px;
+top:10px;
+
+width:70px;
+height:60px;
+
+background:linear-gradient(90deg,#25d7ff,#0099ff);
+
+clip-path:polygon(0 50%,100% 0,100% 100%);
+
+filter:drop-shadow(0 0 15px #00bfff);
+
 }
 
-.box{
-background:#111;
-color:#fff;
-padding:10px;
-border-radius:6px;
-font-weight:bold;
-text-align:center;
+.right{
+position:relative;
+overflow:visible;
 }
+
+.right::before{
+
+content:"";
+
+position:absolute;
+
+left:-45px;
+top:10px;
+
+width:70px;
+height:60px;
+
+background:linear-gradient(90deg,#0099ff,#25d7ff);
+
+clip-path:polygon(0 0,100% 50%,0 100%);
+
+filter:drop-shadow(0 0 15px #00bfff);
+
+}
+
+/* Animation */
+
+#scoreboard{
+
+animation:fadeIn .7s ease;
+
+}
+
+@keyframes fadeIn{
+
+from{
+opacity:0;
+transform:translateY(-30px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+.center{
+
+box-shadow:
+0 0 25px rgba(0,180,255,.45),
+0 8px 20px rgba(0,0,0,.35);
+
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+background:transparent;
+}
+
+#overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+justify-content:center;
+align-items:flex-start;
+pointer-events:none;
+}
+
+#scoreboard{
+
+margin-top:25px;
+
+width:920px;
+height:120px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));
+
+}
+
+/* LEFT */
 
 .team{
+
 width:260px;
-font-size:22px;
+height:80px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:34px;
+font-weight:bold;
+color:#fff;
+
 }
 
-.score{
-width:80px;
-font-size:28px;
-border-left:2px solid #fff;
+.left{
+
+background:linear-gradient(180deg,#1fd5b7,#00a88b);
+
+border-radius:40px 0 0 40px;
+
 }
 
-.title{
-background:#000;
-color:#ffd700;
-width:340px;
-text-align:center;
-padding:4px;
-font-size:12px;
+/* CENTER */
+
+.center{
+
+width:380px;
+height:110px;
+
+background:linear-gradient(180deg,#ffffff,#dcdcdc);
+
+border:4px solid #00A8FF;
+
+border-radius:30px;
+
+display:flex;
+
+justify-content:space-around;
+
+align-items:center;
+
 }
+
+/* TIMER */
+
+#timer{
+
+font-size:32px;
+
+font-weight:bold;
+
+color:#111;
+
+}
+
+/* SCORE */
+
+#score{
+
+font-size:50px;
+
+font-weight:bold;
+
+color:#111;
+
+}
+
+/* RIGHT */
+
+.right{
+
+background:linear-gradient(180deg,#ffd84b,#ffad00);
+
+border-radius:0 40px 40px 0;
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<div class="board">
-  <div>
-    <div class="box" id="half">1ST HALF</div>
-    <div class="box" id="clock">00:00</div>
-  </div>
+<div id="overlay">
 
-  <div>
-    <div class="title" id="title">MATCH</div>
+<div id="scoreboard">
 
-    <div style="display:flex;">
-      <div class="box team" id="team1">TEAM A</div>
-      <div class="box score" id="score1">0</div>
-    </div>
+<div class="team left" id="teamA">
 
-    <div style="display:flex;">
-      <div class="box team" id="team2">TEAM B</div>
-      <div class="box score" id="score2">0</div>
-    </div>
-  </div>
+TEAM A
+
 </div>
 
-<script>
-function render(data){
+<div class="center">
 
-document.getElementById("title").innerText = data.match_title || "MATCH";
-document.getElementById("team1").innerText = data.team1 || "TEAM A";
-document.getElementById("team2").innerText = data.team2 || "TEAM B";
+<div id="timer">
 
-document.getElementById("score1").innerText = data.score1 || 0;
-document.getElementById("score2").innerText = data.score2 || 0;
+00:00
 
-document.getElementById("half").innerText = data.half || "1ST HALF";
+</div>
 
-document.getElementById("clock").innerText =
-String(data.minute || 0).padStart(2,'0') +
-":" +
-String(data.second || 0).padStart(2,'0');
+<div id="score">
+
+0 : 0
+
+</div>
+
+</div>
+
+<div class="team right" id="teamB">
+
+TEAM B
+
+</div>
+
+</div>
+
+</div>
+
+
+
+// Part 1
+
+
+  <script>
+let minute = 0;
+let second = 0;
+let running = false;
+
+const timer = document.getElementById("timer");
+
+function updateTimer() {
+    timer.textContent =
+        String(minute).padStart(2, "0") + ":" +
+        String(second).padStart(2, "0");
 }
 
-async function initialLoad(){
-const {data}=await supabaseClient
-.from("scoreboard")
-.select("*")
-.eq("id",1)
-.single();
+setInterval(() => {
+    if (!running) return;
 
-if(data) render(data);
+    second++;
+
+    if (second >= 60) {
+        second = 0;
+        minute++;
+    }
+
+    updateTimer();
+}, 1000);
+
+function startTimer() {
+    running = true;
 }
 
-initialLoad();
+function pauseTimer() {
+    running = false;
+}
 
-/* 🔴 REALTIME LISTENER */
-supabaseClient
-.channel('scoreboard-live')
-.on(
-  'postgres_changes',
-  {
-    event: '*',
-    schema: 'public',
-    table: 'scoreboard',
-    filter: 'id=eq.1'
-  },
-  (payload) => {
-    render(payload.new);
-  }
-)
-.subscribe();
-</script>
+function resetTimer() {
+    running = false;
+    minute = 0;
+    second = 0;
+    updateTimer();
+}
+
+updateTimer();
+  </script>
 
 </body>
 </html>
